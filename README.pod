@@ -1,0 +1,57 @@
+=pod
+
+=head1 NAME
+
+Mojolicious::Plugin::Handlebars
+
+=head1 VERSION
+
+version 0.1
+
+=head1 SYNOPSIS
+
+  # Mojolicious
+  $self->plugin('Handlebars');
+
+  # Mojolicious::Lite
+  plugin Handlebars;
+  plugin Handlebars => {
+      template_options => { syntax => 'TTerse', ...}
+  };
+
+=head1 DESCRIPTION
+
+L<Mojolicious::Plugin::Handlebars> is a L<Mojolicious> plugin. It is
+heavily based on the L<MojoX::Renderer::Xslate> code. See that for
+further reference.
+
+=head1 NAME
+
+Mojolicious::Plugin::Handlebars - Mojolicious Plugin
+
+=head1 METHODS
+
+L<Mojolicious::Plugin::Handlebars> inherits all methods from
+L<Mojolicious::Plugin> and implements the following new ones.
+
+=head2 register
+
+  $plugin->register(Mojolicious->new);
+
+Register plugin in L<Mojolicious> application.
+
+=head1 SEE ALSO
+
+L<Mojolicious>, L<Mojolicious::Guides>, L<http://mojolicio.us>, L<Text::Handlebars>.
+
+=head1 AUTHOR
+
+Lenz Gschwendtner <lenz@springtimesoft.com>
+
+=head1 COPYRIGHT AND LICENSE
+
+This software is copyright (c) 2013 by springtimesoft LTD.
+
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.
+

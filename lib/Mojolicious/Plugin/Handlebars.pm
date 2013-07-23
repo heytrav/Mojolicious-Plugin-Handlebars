@@ -1,92 +1,92 @@
 package Mojolicious::Plugin::Handlebars;
+use Mojo::Base 'Mojolicious::Plugin';
+use Text::Handlebars;
 
-use 5.012;
-use Mouse;
+our $VERSION = '0.01';
 
-# ABSTRACT: 
+sub register {
+    my ($self, $app, $args) = @_;
 
-# VERSION
+    $args ||= {};
 
-use Data::Dump;
+    my $cache_dir;
+    my @path = $app->home->rel_dir('views');
 
+    if ($app) {
+        $cache_dir = $app->home->rel_dir('tmp/compiled_templates');
+        push @path, Mojo::Loader->new->data($app->renderer->classes->[0],);
+    }
+    else {
+        $cache_dir = File::Spec->tmpdir;
+    }
+
+    my %config = (
+        cache_dir    => $cache_dir,
+        path         => \@path,
+        warn_handler => sub { },
+        die_handler  => sub { },
+        %{ $args->{template_options} || {} },
+    );
+    my $xslate = Text::Handlebars->new(\%config);
+
+    $app->renderer->add_handler(
+        hb => sub {
+            my ($renderer, $c, $output, $options) = @_;
+            my $name = $c->stash->{'template'}
+                || $renderer->template_name($options);
+            my %params = (%{ $c->stash }, c => $c);
+
+            local $@;
+            if (defined(my $inline = $options->{inline})) {
+                $$output = $xslate->render_string($inline, \%params);
+            }
+            else {
+                $$output = $xslate->render($name, \%params);
+            }
+            die $@ if $@;
+
+            return 1;
+
+        });
+}
+
+1;
+__END__
+
+=head1 NAME
+
+Mojolicious::Plugin::Handlebars - Mojolicious Plugin
 
 =head1 SYNOPSIS
 
-Quick summary of what the module does.
+  # Mojolicious
+  $self->plugin('Handlebars');
 
-Perhaps a little code snippet.
+  # Mojolicious::Lite
+  plugin Handlebars;
+  plugin Handlebars => {
+      template_options => { syntax => 'TTerse', ...}
+  };
 
-    use Some::Module;
-    use Data::Dump 'dump';
+=head1 DESCRIPTION
 
-=head1 ATTRIBUTES
+L<Mojolicious::Plugin::Handlebars> is a L<Mojolicious> plugin. It is
+heavily based on the L<MojoX::Renderer::Xslate> code. See that for
+further reference.
 
-=head2 attr
+=head1 METHODS
 
-=cut
+L<Mojolicious::Plugin::Handlebars> inherits all methods from
+L<Mojolicious::Plugin> and implements the following new ones.
 
-has 'attr' => (
-    is => 'rw',
-);
+=head2 register
 
+  $plugin->register(Mojolicious->new);
 
+Register plugin in L<Mojolicious> application.
 
-=head1 SUBROUTINES/METHODS
+=head1 SEE ALSO
 
-=head2 method
-
-=cut
-
-sub method {
-    my ($self) = @_;
-}
-
-
-
-=head1 BUGS
-
-Please report any bugs or feature requests on GitHub's issue tracker L<https://github.com/<github_user>/Mojolicious::Plugin::Handlebars/issues>.
-Pull requests welcome.
-
-
-=head1 SUPPORT
-
-You can find documentation for this module with the perldoc command.
-
-    perldoc Mojolicious::Plugin::Handlebars
-
-
-You can also look for information at:
-
-=over 4
-
-=item * GitHub repository
-
-L<https://github.com/<github_user>/Mojolicious::Plugin::Handlebars>
-
-=item * MetaCPAN
-
-L<https://metacpan.org/module/Mojolicious::Plugin::Handlebars>
-
-=item * AnnoCPAN: Annotated CPAN documentation
-
-L<http://annocpan.org/dist/Mojolicious::Plugin::Handlebars>
-
-=item * CPAN Ratings
-
-L<http://cpanratings.perl.org/d/Mojolicious::Plugin::Handlebars>
-
-=back
-
-
-=head1 ACKNOWLEDGEMENTS
-
-=over 4
-
-=item * Lenz Gschwendtner (@norbu09), for being an awesome mentor and friend.
-
-=back
+L<Mojolicious>, L<Mojolicious::Guides>, L<http://mojolicio.us>, L<Text::Handlebars>.
 
 =cut
-
-1;  # End of Mojolicious::Plugin::Handlebars
